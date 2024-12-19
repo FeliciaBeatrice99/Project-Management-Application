@@ -1,60 +1,45 @@
 import Sidebar from "./components/Sidebar";
-import MainDisplay from "./components/MainDisplay";
-import Project from "./components/Project";
 import NoProject from "./components/NoProject";
-import { useState } from "react";
+import Project from "./components/Project";
+import NewProject from "./components/NewProject";
+import { useState, useRef } from "react";
 
 function App() {
-  const [projectsState, setProjectsState] = useState({
-    selectedProjectId: undefined,
-    projects: []
-  });
+  const [newproject, setNewProject] = useState(false); 
+  const [newData, setNewData] = useState([]); 
 
-  function handleStartAddProject() {
-    setProjectsState(prevState => {
-      return {
-        ...prevState,
-        selectedProjectId: null,
-      };
-    });
+  const data = useRef(); 
+  const [component, setComponent] = useState(<NoProject handlesideBarButton={handlesideBarButton} />);
+  function handleButton() {
+    setComponent(<NoProject handlesideBarButton={handlesideBarButton} />)
+  }
+  function handlesideBarButton() {
+    setComponent(<NewProject ref={data} handleButton={handleButton} handleSave={handleSave} />)
+  }
+  function handleSave(newValue) {
+    setNewData((prevData) => [...prevData, newValue]);
+    setComponent(<NoProject handlesideBarButton={handlesideBarButton} />)
   }
 
-  function handleSaveProject(projectData) {
-    const projectId = Math.random();
-    const newProject = {
-      ...projectData,
-      id: projectId
-    }
-    setProjectsState(prevState => {
-      return {
-        ...prevState,
-        selectedProjectId: undefined,
-        projects: [...prevState.projects,newProject],
-      };
-    });
-  }
-  
-  function handleCancel() {
-    setProjectsState(prevState => {
-      return {
-        ...prevState,
-        selectedProjectId: undefined,
-      };
-    });
-  }
-  console.log(projectsState)
-  let content;
+  function deleteValue(obj) {
+    const arrValue = newData.findIndex(data=>data.title === obj.title)
+    const dulplicate = [...newData];
+    const newArrValue = dulplicate.splice(arrValue, 1)
+    setNewData(dulplicate);
+    setComponent(<NoProject handlesideBarButton={handlesideBarButton} />)
 
-  if (projectsState.selectedProjectId === null) {
-    content = <Project onAdd={handleSaveProject} onCancel={handleCancel}/>
-  } else if (projectsState.selectedProjectId === undefined) {
-    content = <NoProject onStartAddProject={handleStartAddProject} />;
+
   }
+  function project(value){
+    setComponent(<Project data={value} deleteValue={deleteValue}/>)
+  }
+  console.log(newData);
+
   return (
-      <main className="h-screen my-8 flex gap-8">
-        <Sidebar  onStartAddProject={handleStartAddProject} projects={projectsState.projects}/>
-        {content}
-      </main>
+    <main className="h-screen my-8 flex gap-8">
+      <Sidebar handlesideBarButton={handlesideBarButton} newValues={newData} project={project}/>
+      {component}
+    </main>
   );
 }
 
