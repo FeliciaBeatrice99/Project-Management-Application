@@ -1,22 +1,42 @@
 import Input from "./Input";
+import Modal from "./Modal";
 import { useState, useImperativeHandle, useRef, forwardRef } from "react";
 
-const NewProject = forwardRef(function NewProject({ handleButton, handleSave }, ref) {
+const NewProject = forwardRef(function NewProject({ handleButton, handleSaveField }, ref) {
   const title = useRef();
   const description = useRef();
   const date = useRef();
 
   const [value1, setValue1] = useState({}); 
-
-  function handleInputChange(key, value) {
-    setValue1((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+  const [missingData, setMissingData] = useState()
+  function handleSave() {
+    const missingFields = [];
+  
+    if (title.current.value === "") {
+      missingFields.push("Title");
+    }
+    if (description.current.value === "") {
+      missingFields.push("Description");
+    }
+    if (date.current.value === "") {
+      missingFields.push("Date");
+    }
+    if (missingFields.length > 0) {
+      setMissingData(missingFields);
+      ref.current.open()
+    } else {
+      const data = {
+        "title": title.current.value,
+        "description": description.current.value,
+        "date": date.current.value
+      }
+      handleSaveField(data)
+    }
   }
 
   return (
     <div className="w-[35rem] mt-16">
+      <Modal ref={ref} info={missingData} />
       <menu className="flex items-center justify-end gap-4 my-4">
         <li>
           <button
@@ -29,7 +49,7 @@ const NewProject = forwardRef(function NewProject({ handleButton, handleSave }, 
         <li>
           <button
             className="px-6 py-2 rounded-md bg-stone-800 text-stone-50 hover:bg-stone-950"
-            onClick={()=>handleSave(value1)}
+            onClick={handleSave}
           >
             Save
           </button>
@@ -38,19 +58,16 @@ const NewProject = forwardRef(function NewProject({ handleButton, handleSave }, 
       <div>
         <Input
           label="Title"
-          onChange={() => handleInputChange("title", title.current.value)}
           ref={title}
         />
         <Input
           label="Description"
           textarea
-          onChange={() => handleInputChange("description", description.current.value)}
           ref={description}
         />
         <Input
           label="Due Date"
           type="date"
-          onChange={() => handleInputChange("date", date.current.value)}
           ref={date}
         />
       </div>

@@ -5,30 +5,30 @@ import NewProject from "./components/NewProject";
 import { useState, useRef } from "react";
 
 function App() {
-  const [newproject, setNewProject] = useState(false); 
   const [newData, setNewData] = useState([]); 
+  const newRef = useRef();
 
-  const data = useRef(); 
+
   const [component, setComponent] = useState(<NoProject handlesideBarButton={handlesideBarButton} />);
   function handleButton() {
     setComponent(<NoProject handlesideBarButton={handlesideBarButton} />)
   }
   function handlesideBarButton() {
-    setComponent(<NewProject ref={data} handleButton={handleButton} handleSave={handleSave} />)
-  }
-  function handleSave(newValue) {
-    setNewData((prevData) => [...prevData, newValue]);
-    setComponent(<NoProject handlesideBarButton={handlesideBarButton} />)
+    setComponent(<NewProject ref={newRef} handleButton={handleButton} handleSaveField={handleSaveField}  />)
   }
 
+  function handleSaveField(newValue) {
+    setNewData((prevData) => [...prevData, newValue]);
+    setComponent(<NoProject handlesideBarButton={handlesideBarButton} />);
+
+  }
+  
   function deleteValue(obj) {
     const arrValue = newData.findIndex(data=>data.title === obj.title)
     const dulplicate = [...newData];
-    const newArrValue = dulplicate.splice(arrValue, 1)
+    dulplicate.splice(arrValue, 1)
     setNewData(dulplicate);
     setComponent(<NoProject handlesideBarButton={handlesideBarButton} />)
-
-
   }
   function project(value){
     setComponent(<Project data={value} deleteValue={deleteValue}/>)
